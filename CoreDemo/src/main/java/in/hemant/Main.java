@@ -15,7 +15,7 @@ public class Main {
 }
 
 
-// 📝 Full notes: ../NOTES.md (LearningSpringBoot/NOTES.md)
+// 📝 Full notes: NOTES.md (in CoreDemo project root)
 
 // IOC is a principle;
 //Di is approach/technique to achieve IOC;
