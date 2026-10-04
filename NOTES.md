@@ -1,5 +1,7 @@
 # CoreDemo — Learning Notes
 
+> 💻 Source: [`CoreDemo/src/main/java/in/hemant/Main.java`](CoreDemo/src/main/java/in/hemant/Main.java)
+
 ## Key ideas
 - **IOC** is a principle.
 - **DI** is the approach/technique to achieve IOC.
