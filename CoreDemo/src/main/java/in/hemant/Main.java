@@ -15,6 +15,8 @@ public class Main {
 }
 
 
+// 📝 Full notes: ../NOTES.md (LearningSpringBoot/NOTES.md)
+
 // IOC is a principle;
 //Di is approach/technique to achieve IOC;
 
