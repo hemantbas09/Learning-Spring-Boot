@@ -4,12 +4,39 @@
 
 ---
 
-## 1. The one-line rule
+## 1. Proper definitions
 
-- **IOC** is the *principle* (the idea).
-- **DI** is the *technique* used to achieve IOC.
+### Inversion of Control (IoC) — the *principle*
+> **IoC is a design principle in which the flow of control of a program is reversed:** instead of an object creating or looking up its own collaborators, an *external component* (a container, a framework, a caller) creates them and **passes (inverts) the control of object creation and lifecycle to it**.
 
-> Inversion of Control = instead of a class **making** its own dependencies, the dependency is **given (injected) to it** from outside.
+In plain words:
+- **Normal control:** "My class builds what it needs inside itself."
+- **Inverted control:** "My class only *declares* what it needs; someone else (outside) decides which concrete object to give it."
+
+What gets "inverted"? Three things move **out of my class and into the container**:
+1. **Creation** — who calls `new`
+2. **Selection** — which implementation is used
+3. **Lifecycle** — when objects are created and destroyed
+
+> Example: a web app where you never call `new Request()` — the *server framework* creates the request and *calls your* code. Your control is inverted. Spring does the same thing for regular objects.
+
+**The IoC container** is the external component that holds and manages objects (called **beans**): it creates them, wires their dependencies, and manages their lifecycle.
+
+### Dependency Injection (DI) — the *technique*
+> **DI is a pattern that *implements* the IoC principle:** an object receives ("is injected with") the other objects (its **dependencies**) it needs to function, instead of building them itself.
+
+- **Dependency** = an object that another object needs to do its work (here: `OrderService` needs a `NotificationService`).
+- **Injection** = the dependency is *given* from outside, typically through a constructor, setter, or field.
+
+### The relationship (most important line of the day)
+> **IoC is the "what" (principle). DI is the "how" (one way to achieve it).**
+> IoC is a broad principle — DI, Service Locator, and event-driven hooks are all *ways* to achieve IoC. DI is the most common one, and the one Spring uses.
+
+| | IoC | DI |
+|---|-----|-----|
+| Is | a **principle / idea** | a **pattern / technique** |
+| Answers | *who should control object creation?* → the outside | *how does the outside give the object what it needs?* → by injecting it |
+| In Spring | the Spring **container** (IoC container) | `@Autowired` / constructor wiring |
 
 ---
 
@@ -71,16 +98,66 @@ public class OrderService {
 ```
 
 ### Types of Dependency Injection
-| Type | How | Notes |
-|------|-----|-------|
-| **Constructor injection** | passed in the constructor ✅ *(used in this demo)* | Preferred — dependency can't be null, easy to test, final field |
-| **Setter injection** | passed via a `setNotification(...)` method | Optional dependencies |
-| **Field injection** | `@Autowired` directly on a field | Least preferred — hard to test, hides the dependency |
+There are **three** ways to inject a dependency. All achieve the same loose coupling; they differ in *where* the dependency is passed.
+
+**1. Constructor Injection** ✅ *(the one used in this demo — and the preferred one)*
+```java
+public class OrderService {
+    private final NotificationService notification;
+
+    public OrderService(NotificationService notification){
+        this.notification = notification;   // injected here, at object creation
+    }
+}
+// usage:  new OrderService(new SmsService())
+```
+- Dependency **cannot be null** → no `NullPointerException` surprises.
+- Field can be `final` → object is immutable & thread-safe.
+- All dependencies are visible in one place (the constructor signature) → easy to read & unit-test (just pass mocks).
+- **When:** required dependencies — almost always.
+
+**2. Setter Injection**
+```java
+public class OrderService {
+    private NotificationService notification;
+
+    public void setNotification(NotificationService notification){
+        this.notification = notification;   // injected after creation
+    }
+}
+// usage:
+// OrderService order = new OrderService();
+// order.setNotification(new EmailService());
+```
+- Object can be created first, then wired → handy when a dependency is **optional** or may change over time.
+- Downside: object can exist in an *invalid, half-configured* state (null until the setter is called).
+- **When:** optional/reconfigurable dependencies.
+
+**3. Field Injection**
+```java
+public class OrderService {
+    @Autowired
+    private NotificationService notification;   // Spring sets the field directly
+}
+```
+- Least boilerplate, but **least recommended**:
+  - can't be `final`, harder to unit-test (needs reflection or the container),
+  - hides the dependency (no constructor signature to read),
+  - circular dependencies get silently allowed.
+- **When:** basically avoid it; only for quick legacy/prototype code.
+
+**Quick comparison**
+
+| Type | Can be `final`? | Null-safe? | Easy to test? | Best for |
+|------|:---:|:---:|:---:|----------|
+| **Constructor** ✅ | Yes | Yes | Yes | Required deps (default choice) |
+| **Setter** | No | No | Moderate | Optional / reconfigurable deps |
+| **Field** | No | No | Hard | Avoid |
 
 ### Wiring it in `Main`
 ```java
 NotificationService notification = new SmsService();        // choose the implementation HERE
-OrderService order = new OrderService(notification);        // inject it
+OrderService order = new OrderService(notification);        // inject it (constructor injection)
 order.placeholder();                                        // → "Order Placed" + "Sms is send"
 ```
 
