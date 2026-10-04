@@ -1,5 +1,7 @@
 # CoreDemo — Learning Notes
 
+> 📚 Main hub: [`../NOTES.md`](../NOTES.md) (LearningSpringBoot root — links all project notes)
+>
 > What I learned today: **Loose Coupling, Dependency Injection (DI), and Inversion of Control (IOC)** — the core ideas Spring Framework is built on.
 
 ---
