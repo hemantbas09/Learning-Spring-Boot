@@ -1,0 +1,9 @@
+# Build output
+target/
+out/
+*.class
+
+# IDE — keep shared settings, ignore per-user files
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/learnings.xml
